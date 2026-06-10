@@ -1,0 +1,232 @@
+@import url('base.css');
+
+:root {
+    --green-50:  #f8fbf3;
+    --green-100: #d8e7bf;
+    --green-200: #a8c97a;
+    --green-400: #97C459;
+    --green-600: #24480a;
+    --green-800: #173404;
+    --surface:   #f4f8ef;
+    --white:     #ffffff;
+    --text-main: #1f3d0c;
+    --text-mute: #61744e;
+    --border:    #d8e7bf;
+}
+
+body { padding: 2rem 2rem 4rem; }
+
+/* Tarjeta principal — sin nav, sin margen superior */
+.page-wrap { max-width: 980px; margin: 0 auto; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 14px; color: var(--green-600); text-decoration: none;
+  margin-bottom: 1.5rem; font-weight: 600;
+}
+.back-link:hover { color: var(--green-800); }
+
+h2 {
+  font-size: 20px; font-weight: 700; color: var(--green-800);
+  letter-spacing: -0.01em; margin-bottom: 1.5rem;
+}
+h3 {
+  font-size: 15px; font-weight: 600; color: var(--green-600);
+  margin: 1.5rem 0 1rem;
+}
+
+.card {
+  background: var(--white); border: 1px solid var(--green-600);
+  border-radius: 12px; padding: 1.75rem;
+  box-shadow: 0 2px 12px rgba(59,109,17,0.06);
+}
+
+.field-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px; margin-bottom: 1rem;
+}
+
+.field-group input {
+    width: 100%; padding: 8px 12px; border: 1px solid var(--green-200);
+    border-radius: 6px; background: var(--white); font-family: inherit;
+    font-size: 14px; color: var(--text-main);
+}
+
+/* Flex container for labeled fields (consistencia con otras vistas) */
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label {
+    font-size: 11px; font-weight: 600; color: var(--text-mute);
+    text-transform: uppercase; letter-spacing: 0.05em;
+}
+.field input, .field select, .field textarea {
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 12px; font-size: 14px; color: var(--text-main);
+    background: var(--white); font-family: inherit; width: 100%;
+    transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+    outline: none; border-color: var(--green-600);
+    box-shadow: 0 0 0 3px rgba(99,153,34,0.12);
+}
+.field textarea { resize: vertical; }
+
+.divider { border: none; border-top: 1px solid var(--green-100); margin: 1.25rem 0; }
+
+/* Tabla curva de calibración */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border); border-radius: 8px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  background: var(--green-50); color: var(--green-800);
+  padding: 9px 14px; text-align: left;
+  border: 1px solid var(--green-100);
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+td { padding: 8px 10px; border: 1px solid var(--border); vertical-align: middle; }
+tr:nth-child(even) td { background: #fafdf6; }
+tr:hover td { background: var(--green-50); }
+td input[type="number"] {
+  width: 100%; padding: 5px 8px; border: 1px solid var(--border);
+  border-radius: 6px; background: var(--white); font-family: inherit;
+  font-size: 13px; color: var(--text-main);
+}
+td input:focus { outline: none; border-color: var(--green-400); }
+
+/* Botón guardar */
+.btn-submit {
+  margin-top: 1.5rem; padding: 10px 24px;
+  background: var(--green-600); color: var(--white);
+  border: none; border-radius: 8px;
+  font-size: 14px; font-weight: 600;
+  font-family: inherit; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(59,109,17,0.22);
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-submit:hover { background: var(--green-800); }
+.btn-submit:active { transform: scale(0.97); }
+
+
+/* ── ENCABEZADO DOCUMENTO ─────────────────────────────────────── */
+.doc-header {
+    display: grid;
+    grid-template-columns: 120px 1fr 160px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.doc-col {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.doc-col + .doc-col {
+    border-left: 1px solid var(--border);
+}
+
+.logo-col {
+    align-items: center;
+    background: var(--green-50);
+}
+
+.logo-col img {
+    max-width: 100%;
+    max-height: 56px;
+    object-fit: contain;
+}
+
+.title-col {
+    gap: 4px;
+}
+
+.doc-registro-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.doc-registro-main {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green-800);
+    line-height: 1.35;
+}
+
+.doc-registro-sub {
+    font-size: 12px;
+    color: var(--text-mute);
+}
+
+.meta-col {
+    padding: 0;
+}
+
+.meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 14px;
+    border-bottom: .5px solid var(--border);
+    font-size: 12px;
+}
+
+.meta-row:last-child {
+    border-bottom: none;
+}
+
+.meta-row span {
+    font-size: 11px;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.meta-row strong {
+    color: var(--green-800);
+    font-weight: 600;
+}
+
+/* ── PIE DE PÁGINA ────────────────────────────────────────────── */
+.form-footer {
+    border-top: 2px solid var(--green-100);
+    background: var(--surface);
+    padding: 18px 20px;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+}
+
+.footer-grid .full {
+    grid-column: 1 / -1;
+}
+
+.footer-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: .5px solid var(--border);
+}
+
+.footer-meta-left {
+    font-size: 11px;
+    color: var(--text-mute);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.footer-meta-left strong {
+    color: var(--green-600);
+}

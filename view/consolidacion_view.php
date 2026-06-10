@@ -1,0 +1,121 @@
+<?php
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../models/consolidacion_model.php';
+lab_require_permission('laboratorio.consolidacion.ver');
+
+$tiposMuestra = $tiposMuestra ?? [];
+$tipoSeleccionado = $tipoSeleccionado ?? null;
+$tipoActual = $tipoActual ?? null;
+$analisis = $analisis ?? [];
+$filas = $filas ?? [];
+$estados = $estados ?? [];
+
+function eConsolidacion($value)
+{
+    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+}
+
+function fechaConsolidacion($fecha)
+{
+    if (!$fecha) {
+        return '-';
+    }
+
+    $timestamp = strtotime($fecha);
+    return $timestamp ? date('d/m/Y', $timestamp) : $fecha;
+}
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoja de consolidacion</title>
+    <link rel="stylesheet" href="../styles/consolidacion.css">
+</head>
+<body>
+<div class="page-wrap">
+    <a href="../index.php" class="back-link">Volver</a>
+
+    <header class="page-header">
+        <div>
+            <span class="eyebrow">Recepcion</span>
+            <h1>Hoja de consolidacion</h1>
+        </div>
+        <form method="GET" class="filter-form">
+            <label for="tipo">Tipo de muestra</label>
+            <select id="tipo" name="tipo" onchange="this.form.submit()">
+                <?php foreach ($tiposMuestra as $tipo): ?>
+                    <option value="<?= (int) $tipo['id_tipo'] ?>" <?= (int) $tipo['id_tipo'] === (int) $tipoSeleccionado ? 'selected' : '' ?>>
+                        <?= eConsolidacion($tipo['nombre']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+    </header>
+
+    <div class="summary-row">
+        <span><?= $tipoActual ? eConsolidacion($tipoActual['nombre']) : 'Sin tipo de muestra' ?></span>
+        <span><?= count($filas) ?> registros</span>
+        <span><?= count($analisis) ?> analisis</span>
+    </div>
+
+    <?php if (empty($tiposMuestra)): ?>
+        <div class="empty-state">No hay tipos de muestra registrados.</div>
+    <?php elseif (empty($analisis)): ?>
+        <div class="empty-state">No hay analisis registrados para este tipo de muestra.</div>
+    <?php else: ?>
+        <div class="table-shell">
+            <table class="consolidacion-table">
+                <thead>
+                    <tr>
+                        <th>Fecha ingreso</th>
+                        <th>Lote</th>
+                        <th>No. muestras</th>
+                        <th>Empieza</th>
+                        <th>Termina</th>
+                        <?php foreach ($analisis as $item): ?>
+                            <th><?= eConsolidacion($item['nombre']) ?></th>
+                        <?php endforeach; ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($filas)): ?>
+                        <tr>
+                            <td colspan="<?= 5 + count($analisis) ?>" class="empty-cell">
+                                No hay solicitudes para este tipo de muestra.
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($filas as $fila): ?>
+                            <tr>
+                                <td><?= eConsolidacion(fechaConsolidacion($fila['fecha_ingreso'] ?? null)) ?></td>
+                                <td><?= eConsolidacion($fila['codigo_lote'] ?? '-') ?></td>
+                                <td><?= eConsolidacion($fila['numero_muestras'] ?? '-') ?></td>
+                                <td><?= eConsolidacion($fila['inicio'] ?? '-') ?></td>
+                                <td><?= eConsolidacion($fila['fin'] ?? '-') ?></td>
+                                <?php foreach ($analisis as $item): ?>
+                                    <?php
+                                        $estadoCelda = celdaConsolidacion(
+                                            $estados,
+                                            $fila['id_solicitud'],
+                                            $fila['id_rango'] ?? null,
+                                            $item['id_tipo']
+                                        );
+                                        $clase = $estadoCelda['completado']
+                                            ? 'cell-requested cell-completed'
+                                            : ($estadoCelda['solicitado'] ? 'cell-requested' : 'cell-empty');
+                                        $texto = $estadoCelda['solicitado'] ? 'si' : '-';
+                                    ?>
+                                    <td class="<?= $clase ?>"><?= $texto ?></td>
+                                <?php endforeach; ?>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+</div>
+</body>
+</html>
