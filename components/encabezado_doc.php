@@ -1,26 +1,23 @@
 <?php
-// Variables esperadas (definidas en cada formulario antes del include):
-$doc_elemento    = "Fósforo";
-$doc_tipo        = "Suelos";
-$doc_codigo      = "LAB-001";
-$doc_fecha_doc   = "2024-01-15";
-$doc_edicion     = "03";
-$doc_vf          = "V2";
+$doc_elemento = $doc_elemento ?? 'Analisis';
+$doc_tipo = $doc_tipo ?? 'muestra';
+$doc_codigo = $doc_codigo ?? 'LAB-001';
+$doc_edicion = $doc_edicion ?? '001';
+$doc_vf = $doc_vf ?? 'VF-000';
+
+if (!function_exists('eDoc')) {
+    function eDoc($value)
+    {
+        return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    }
+}
 ?>
 
 <div class="doc-header">
-    <div class="doc-col logo-col">
-        <img src="<?= $logo_path ?? '../../assets/logo.png' ?>" alt="Logo laboratorio">
+    <div class="doc-brand-mark">CG</div>
+    <div class="doc-title-block">
+        <h1>Determinacion de <?= eDoc($doc_elemento) ?> en <?= eDoc($doc_tipo) ?></h1>
+        <p><?= eDoc($doc_codigo) ?> · Edicion <?= eDoc($doc_edicion) ?> · <?= eDoc($doc_vf) ?></p>
     </div>
-    <div class="doc-col title-col">
-        <span class="doc-registro-label">Registro</span>
-        <span class="doc-registro-main">Determinación de <?= htmlspecialchars($doc_elemento) ?></span>
-        <span class="doc-registro-sub">en <?= htmlspecialchars($doc_tipo) ?></span>
-    </div>
-    <div class="doc-col meta-col">
-        <div class="meta-row"><span>Código</span><strong><?= htmlspecialchars($doc_codigo) ?></strong></div>
-        <div class="meta-row"><span>Fecha doc.</span><strong><?= htmlspecialchars($doc_fecha_doc) ?></strong></div>
-        <div class="meta-row"><span>Edición</span><strong><?= htmlspecialchars($doc_edicion) ?></strong></div>
-        <div class="meta-row"><span>VF</span><strong><?= htmlspecialchars($doc_vf) ?></strong></div>
-    </div>
+    <a class="doc-new-link" href="<?= eDoc($_SERVER['SCRIPT_NAME'] ?? '#') ?>">Nuevo registro</a>
 </div>

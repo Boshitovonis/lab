@@ -20,7 +20,7 @@ $datos_curva = $datos_curva ?? [];
 
         <h2>Curva de Calibración</h2>
 
-        <a class="back-link" href="../../index.php" onclick="if (document.referrer) { history.back(); return false; }">← Volver</a>
+        <a class="back-link" href="../../view/labc_index.php">← Volver</a>
 
         <div class="chart-container">
             <canvas id="grafica"></canvas>

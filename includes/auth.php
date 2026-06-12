@@ -124,7 +124,24 @@ function lab_normalized_role(): string
     $from = ['á', 'é', 'í', 'ó', 'ú', 'ü', 'ñ'];
     $to = ['a', 'e', 'i', 'o', 'u', 'u', 'n'];
 
-    return str_replace($from, $to, $role);
+    $role = str_replace($from, $to, $role);
+
+    if (function_exists('iconv')) {
+        $normalized = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $role);
+        if ($normalized !== false) {
+            $role = strtolower($normalized);
+        }
+    }
+
+    return strtr($role, [
+        'á' => 'a',
+        'é' => 'e',
+        'í' => 'i',
+        'ó' => 'o',
+        'ú' => 'u',
+        'ü' => 'u',
+        'ñ' => 'n',
+    ]);
 }
 
 function lab_role_is_laboratory_related(): bool
@@ -136,8 +153,10 @@ function lab_role_is_laboratory_related(): bool
     return in_array($roleId, [1, 2, 3, 4], true)
         || strpos($role, 'superadmin') !== false
         || strpos($role, 'administrador') !== false
+        || strpos($role, 'admin') !== false
         || strpos($role, 'jefa') !== false
         || strpos($role, 'tecnico') !== false
+        || strpos($role, 'analista') !== false
         || strpos($role, 'laboratorista') !== false
         || strpos($role, 'recepcion') !== false;
 }
@@ -151,7 +170,7 @@ function lab_has_module_access(string $module = 'Laboratorio'): bool
     }
 
     $modules = lab_session_modules();
-    if ($modules !== null) {
+    if ($modules !== null && !empty($modules)) {
         return in_array(strtolower($module), $modules, true);
     }
 
@@ -195,7 +214,9 @@ function lab_default_permissions_for_role(): array
         || $roleId === 1
         || strpos($role, 'superadmin') !== false
         || strpos($role, 'jefa') !== false
-        || ($roleId === 2 && strpos($role, 'administrador') !== false)
+        || $roleId === 2
+        || strpos($role, 'administrador') !== false
+        || $role === 'admin'
     ) {
         return lab_all_permissions();
     }
@@ -209,11 +230,12 @@ function lab_default_permissions_for_role(): array
         ];
     }
 
-    if ($roleId === 4 || strpos($role, 'laboratorista') !== false) {
+    if ($roleId === 4 || strpos($role, 'analista') !== false || strpos($role, 'laboratorista') !== false) {
         return [
             'laboratorio.acceder',
             'laboratorio.analisis.ver',
             'laboratorio.analisis.crear',
+            'laboratorio.analisis.editar',
         ];
     }
 
@@ -225,7 +247,6 @@ function lab_default_permissions_for_role(): array
             'laboratorio.solicitudes.editar',
             'laboratorio.lotes.ver',
             'laboratorio.analisis.ver',
-            'laboratorio.blanco_control.ver',
             'laboratorio.consolidacion.ver',
             'laboratorio.consolidacion.aprobar',
         ];
@@ -238,8 +259,14 @@ function lab_user_permissions(): array
 {
     $permissions = lab_session_permissions();
 
-    if ($permissions !== null) {
-        return $permissions;
+    if ($permissions !== null && !empty($permissions)) {
+        foreach ($permissions as $permission) {
+            if (strpos((string) $permission, 'laboratorio.') === 0) {
+                return $permissions;
+            }
+        }
+
+        return array_values(array_unique(array_merge($permissions, lab_default_permissions_for_role())));
     }
 
     return lab_default_permissions_for_role();

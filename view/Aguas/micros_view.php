@@ -17,7 +17,7 @@ $tecnicos      = [
     ['id' => 3, 'nombre' => 'María Pérez'],
 ];
 $observaciones = "";
-$resultado     = [];
+$resultado = $resultado ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -30,7 +30,7 @@ $resultado     = [];
 <body>
 <div class="page-wrap">
 
-    <a href="../../index.php" class="back-link">← Volver</a>
+    <a href="../../view/labc_index.php" class="back-link">← Volver</a>
     <h2>Micro Nutrientes en Aguas</h2>
 
     <?php if (!empty($resultado)): ?>

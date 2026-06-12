@@ -9,6 +9,7 @@ $message = '';
 $dbWarning = '';
 $solicitudesDb = [];
 $correlativosDb = [];
+$loteSeleccionado = trim((string) ($_GET['lote'] ?? ''));
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $idSolicitudPost = !empty($_POST['id_solicitud']) ? (int) $_POST['id_solicitud'] : null;
   lab_require_permission($idSolicitudPost ? 'laboratorio.solicitudes.editar' : 'laboratorio.solicitudes.crear');
@@ -173,7 +174,7 @@ try {
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 </head>
 <body>
-   <link rel="stylesheet" href="../css/solicitud_formulario.css?v=2">
+   <link rel="stylesheet" href="../css/solicitud_formulario.css?v=4">
 
 <!-- NAV -->
 <nav>
@@ -265,7 +266,8 @@ try {
             id="lote"
             name="lote"
             type="text"
-            placeholder="Ej. 185"/>
+            placeholder="Ej. 185"
+            value="<?= htmlspecialchars($loteSeleccionado, ENT_QUOTES, 'UTF-8') ?>"/>
     </div>
 
     <div class="field">
@@ -345,6 +347,7 @@ try {
     <div class="firma-card">
       <span class="firma-label">Ingresado por</span>
       <input class="firma-name-input" name="ingresado_por" type="text" placeholder="Nombre del analista" aria-label="Nombre del analista"/>
+      <input class="firma-email-input" name="correo_ingresado_por" type="email" placeholder="correo@ejemplo.com" aria-label="Correo del analista"/>
       <canvas class="firma-canvas" id="canvas-ingreso" aria-label="Campo de firma — ingresado por"></canvas>
       <div class="firma-actions">
         <button type="button" class="btn-clear" data-clear-canvas="canvas-ingreso">
@@ -356,6 +359,7 @@ try {
     <div class="firma-card">
       <span class="firma-label">Recibido por</span>
       <input class="firma-name-input" name="recibido_por" type="text" placeholder="Nombre del receptor" aria-label="Nombre del receptor"/>
+      <input class="firma-email-input" name="correo_recibido_por" type="email" placeholder="correo@ejemplo.com" aria-label="Correo del receptor"/>
       <canvas class="firma-canvas" id="canvas-recibe" aria-label="Campo de firma — recibido por"></canvas>
       <div class="firma-actions">
         <button type="button" class="btn-clear" data-clear-canvas="canvas-recibe">
@@ -396,16 +400,25 @@ try {
   </form>
 </main>
 <!-- FAB -->
-<div class="fab-group">
-  <button type="button" class="fab secondary" title="Guardar borrador" onclick="alert('Borrador guardado')">
-    <span class="material-symbols-outlined">save</span>
-  </button>
-  <button type="button" class="fab primary" title="Finalizar solicitud" onclick="document.getElementById('solicitud-form').submit()">
-    <span class="material-symbols-outlined">send</span>
-  </button>
-</div>
+  <div class="fab-group">
+    <button type="button" class="fab secondary" id="btn-generar-pdf" title="Generar PDF">
+      <span class="fab-icon material-symbols-outlined">picture_as_pdf</span>
+      <span class="fab-text">
+        <span class="fab-label">Generar PDF</span>
+        <span class="fab-description">Descarga y envía el PDF</span>
+      </span>
+    </button>
+    <button type="button" class="fab primary" id="btn-finalizar-solicitud" title="Finalizar solicitud">
+      <span class="fab-icon material-symbols-outlined">send</span>
+      <span class="fab-text">
+        <span class="fab-label">Finalizar solicitud</span>
+        <span class="fab-description">Genera y envía antes de guardar</span>
+      </span>
+    </button>
+  </div>
 <script type="application/json" id="solicitudes-db"><?php echo json_encode($solicitudesDb, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG); ?></script>
 <script type="application/json" id="correlativos-db"><?php echo json_encode($correlativosDb, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG); ?></script>
-<script src="../js/solicitud_formulario.js?v=2"></script>
+<script src="../node_modules/pdf-lib/dist/pdf-lib.min.js"></script>
+<script src="../js/solicitud_formulario.js?v=4"></script>
 </body>
 </html>

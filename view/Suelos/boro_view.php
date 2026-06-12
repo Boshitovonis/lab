@@ -17,7 +17,7 @@ $tecnicos      = [
     ['id' => 3, 'nombre' => 'María Pérez'],
 ];
 $observaciones = "";
-$resultado     = [];
+$resultado = $resultado ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -29,7 +29,7 @@ $resultado     = [];
 </head>
 <body>
     <div class="page-wrap">
-    <a class="back-link" href="../../index.php">← Volver</a>
+    <a class="back-link" href="../../view/labc_index.php">← Volver</a>
     <h2>Boro en Suelos</h2>
 
     <?php if (!empty($resultado)): ?>
@@ -82,9 +82,9 @@ $resultado     = [];
                     </table>
                 </div>
             <br>
-        </form>
 
         <?php include '../../components/pie_pagina.php'; ?>
+        </form>
 
     </div><!-- /.card -->
 

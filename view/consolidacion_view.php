@@ -6,6 +6,7 @@ lab_require_permission('laboratorio.consolidacion.ver');
 $tiposMuestra = $tiposMuestra ?? [];
 $tipoSeleccionado = $tipoSeleccionado ?? null;
 $tipoActual = $tipoActual ?? null;
+$loteSeleccionado = $loteSeleccionado ?? '';
 $analisis = $analisis ?? [];
 $filas = $filas ?? [];
 $estados = $estados ?? [];
@@ -24,46 +25,86 @@ function fechaConsolidacion($fecha)
     $timestamp = strtotime($fecha);
     return $timestamp ? date('d/m/Y', $timestamp) : $fecha;
 }
+
+$filasPdf = [];
+foreach ($filas as $fila) {
+    $row = [
+        fechaConsolidacion($fila['fecha_ingreso'] ?? null),
+        $fila['codigo_lote'] ?? '-',
+        $fila['numero_muestras'] ?? '-',
+        $fila['inicio'] ?? '-',
+        $fila['fin'] ?? '-',
+    ];
+
+    foreach ($analisis as $item) {
+        $estadoCelda = celdaConsolidacion(
+            $estados,
+            $fila['id_solicitud'],
+            $fila['id_rango'] ?? null,
+            $item['id_tipo']
+        );
+        $row[] = $estadoCelda['solicitado'] ? 'SI' : '-';
+    }
+
+    $filasPdf[] = $row;
+}
+
+$headersPdf = array_merge(
+    ['Fecha ingreso', 'Lote', 'No. muestras', 'Empieza', 'Termina'],
+    array_map(static function ($item) {
+        return $item['nombre'];
+    }, $analisis)
+);
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hoja de consolidacion</title>
+    <title>Hoja de consolidación</title>
     <link rel="stylesheet" href="../styles/consolidacion.css">
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 </head>
 <body>
 <div class="page-wrap">
-    <a href="../index.php" class="back-link">Volver</a>
+    <a href="../view/labc_index.php" class="back-link">Volver</a>
 
     <header class="page-header">
         <div>
-            <span class="eyebrow">Recepcion</span>
-            <h1>Hoja de consolidacion</h1>
+            <span class="eyebrow">Recepción</span>
+            <h1>Hoja de consolidación</h1>
         </div>
-        <form method="GET" class="filter-form">
-            <label for="tipo">Tipo de muestra</label>
-            <select id="tipo" name="tipo" onchange="this.form.submit()">
-                <?php foreach ($tiposMuestra as $tipo): ?>
-                    <option value="<?= (int) $tipo['id_tipo'] ?>" <?= (int) $tipo['id_tipo'] === (int) $tipoSeleccionado ? 'selected' : '' ?>>
-                        <?= eConsolidacion($tipo['nombre']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </form>
+        <div class="header-actions">
+            <button class="pdf-button" id="btn-consolidacion-pdf" type="button">Descargar PDF</button>
+            <form method="GET" class="filter-form">
+                <label for="tipo">Tipo de muestra</label>
+                <select id="tipo" name="tipo" onchange="this.form.submit()">
+                    <?php foreach ($tiposMuestra as $tipo): ?>
+                        <option value="<?= (int) $tipo['id_tipo'] ?>" <?= (int) $tipo['id_tipo'] === (int) $tipoSeleccionado ? 'selected' : '' ?>>
+                            <?= eConsolidacion($tipo['nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if ($loteSeleccionado !== ''): ?>
+                    <input type="hidden" name="lote" value="<?= eConsolidacion($loteSeleccionado) ?>">
+                <?php endif; ?>
+            </form>
+        </div>
     </header>
 
     <div class="summary-row">
         <span><?= $tipoActual ? eConsolidacion($tipoActual['nombre']) : 'Sin tipo de muestra' ?></span>
+        <?php if ($loteSeleccionado !== ''): ?>
+            <span>Lote <?= eConsolidacion($loteSeleccionado) ?></span>
+        <?php endif; ?>
         <span><?= count($filas) ?> registros</span>
-        <span><?= count($analisis) ?> analisis</span>
+        <span><?= count($analisis) ?> análisis</span>
     </div>
 
     <?php if (empty($tiposMuestra)): ?>
         <div class="empty-state">No hay tipos de muestra registrados.</div>
     <?php elseif (empty($analisis)): ?>
-        <div class="empty-state">No hay analisis registrados para este tipo de muestra.</div>
+        <div class="empty-state">No hay análisis registrados para este tipo de muestra.</div>
     <?php else: ?>
         <div class="table-shell">
             <table class="consolidacion-table">
@@ -105,7 +146,7 @@ function fechaConsolidacion($fecha)
                                         $clase = $estadoCelda['completado']
                                             ? 'cell-requested cell-completed'
                                             : ($estadoCelda['solicitado'] ? 'cell-requested' : 'cell-empty');
-                                        $texto = $estadoCelda['solicitado'] ? 'si' : '-';
+                                        $texto = $estadoCelda['solicitado'] ? 'sí' : '-';
                                     ?>
                                     <td class="<?= $clase ?>"><?= $texto ?></td>
                                 <?php endforeach; ?>
@@ -117,5 +158,21 @@ function fechaConsolidacion($fecha)
         </div>
     <?php endif; ?>
 </div>
+<script src="../js/pdf_tablas.js"></script>
+<script>
+const consolidacionHeaders = <?= json_encode($headersPdf, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+const consolidacionRows = <?= json_encode($filasPdf, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+const consolidacionTipo = <?= json_encode($tipoActual['nombre'] ?? 'Sin tipo de muestra', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+
+document.getElementById("btn-consolidacion-pdf")?.addEventListener("click", async () => {
+    await LabPdfTablas.crearPdfConsolidacion({
+        titulo: "Consolidado de ingreso de analisis",
+        subtitulo: consolidacionTipo,
+        headers: consolidacionHeaders,
+        rows: consolidacionRows.length ? consolidacionRows : [["-", "-", "-", "-", "-"]],
+        fileName: `consolidacion_${LabPdfTablas.nombreArchivo(consolidacionTipo)}.pdf`,
+    });
+});
+</script>
 </body>
 </html>

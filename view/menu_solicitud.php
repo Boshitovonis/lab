@@ -2,6 +2,17 @@
 require_once __DIR__ . '/../includes/auth.php';
 
 lab_require_permission('laboratorio.solicitudes.crear');
+
+$loteSeleccionado = trim((string) ($_GET['lote'] ?? ''));
+
+function menuSolicitudUrl(string $tipo, string $lote): string
+{
+    $url = 'solicitud_formulario.php?tipo=' . rawurlencode($tipo);
+    if ($lote !== '') {
+        $url .= '&lote=' . rawurlencode($lote);
+    }
+    return $url;
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -30,23 +41,23 @@ lab_require_permission('laboratorio.solicitudes.crear');
 
         <div class="btns">
 
-            <a class="btn" href="solicitud_formulario.php?tipo=suelo-fisico">
+            <a class="btn" href="<?= htmlspecialchars(menuSolicitudUrl('suelo-fisico', $loteSeleccionado), ENT_QUOTES, 'UTF-8') ?>">
                 🌱 Suelos
             </a>
 
-            <a class="btn" href="solicitud_formulario.php?tipo=foliares">
+            <a class="btn" href="<?= htmlspecialchars(menuSolicitudUrl('foliares', $loteSeleccionado), ENT_QUOTES, 'UTF-8') ?>">
                 🍃 Foliares
             </a>
 
-            <a class="btn" href="solicitud_formulario.php?tipo=cana">
+            <a class="btn" href="<?= htmlspecialchars(menuSolicitudUrl('cana', $loteSeleccionado), ENT_QUOTES, 'UTF-8') ?>">
                 🎋 Caña
             </a>
 
-            <a class="btn" href="solicitud_formulario.php?tipo=miel">
+            <a class="btn" href="<?= htmlspecialchars(menuSolicitudUrl('miel', $loteSeleccionado), ENT_QUOTES, 'UTF-8') ?>">
                 🍯 Miel
             </a>
 
-            <a class="btn" href="solicitud_formulario.php?tipo=agua">
+            <a class="btn" href="<?= htmlspecialchars(menuSolicitudUrl('agua', $loteSeleccionado), ENT_QUOTES, 'UTF-8') ?>">
                 💧 Agua
             </a>
 

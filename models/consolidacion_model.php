@@ -52,9 +52,18 @@ function obtenerAnalisisConsolidacion($idTipo)
     return obtenerAnalisisBaseConsolidacion((int) $idTipo);
 }
 
-function obtenerFilasConsolidacion($idTipo)
+function obtenerFilasConsolidacion($idTipo, $codigoLote = '')
 {
     global $connConsolidacion;
+
+    $codigoLote = trim((string) $codigoLote);
+    $params = [$idTipo];
+    $filtroLote = '';
+
+    if ($codigoLote !== '') {
+        $filtroLote = ' AND l.codigo_lote = ?';
+        $params[] = $codigoLote;
+    }
 
     $stmt = $connConsolidacion->prepare(
         "SELECT
@@ -74,10 +83,10 @@ function obtenerFilasConsolidacion($idTipo)
               FROM muestra
              GROUP BY id_solicitud
         ) m ON m.id_solicitud = s.id_solicitud
-        WHERE s.id_tipo = ?
+        WHERE s.id_tipo = ?{$filtroLote}
         ORDER BY s.fecha_ingreso DESC, s.id_solicitud DESC, lr.inicio ASC"
     );
-    $stmt->execute([$idTipo]);
+    $stmt->execute($params);
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

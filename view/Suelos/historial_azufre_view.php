@@ -20,7 +20,7 @@ $historial = $historial ?? [];
 
         <h2>Historial de Análisis de Azufre</h2>
 
-        <a class="back-link" href="../../index.php">← Volver</a>
+        <a class="back-link" href="../../view/labc_index.php">← Volver</a>
 
         <div class="table-wrap">
             <table class="historial-table">

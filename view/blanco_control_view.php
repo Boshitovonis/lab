@@ -38,7 +38,7 @@ function activoTexto($value) {
 </head>
 <body>
 <main class="bc-shell">
-    <a class="bc-back" href="../index.php">&larr; Volver</a>
+    <a class="bc-back" href="../view/labc_index.php">&larr; Volver</a>
 
     <header class="bc-header">
         <div>
